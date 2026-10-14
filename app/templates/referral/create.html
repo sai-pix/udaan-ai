@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ t('referral_title') }} — {{ organization.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card card-udaan p-4 p-md-5 bg-white">
+        <div class="mb-4">
+          <span class="badge bg-teal-light text-teal mb-2" style="background:#ccfbf1; color:#0f766e;">Method 2: Consent-Based Referral</span>
+          <h2 class="fw-bold">{{ t('referral_title') }}</h2>
+          <p class="text-muted">You are requesting a referral to <strong>{{ organization.name }}</strong>.</p>
+        </div>
+
+        {% if opportunity %}
+          <div class="alert alert-info py-2 small mb-4">
+            <i class="bi bi-briefcase me-1"></i> Target Opportunity: <strong>{{ opportunity.title }}</strong> ({{ opportunity.wage_or_stipend }})
+          </div>
+        {% endif %}
+
+        <form action="{{ url_for('referral.create_referral_request', org_id=organization.id, opp_id=opportunity.id if opportunity else None) }}" method="POST">
+          <h5 class="fw-bold border-bottom pb-2 mb-3">1. Review Consented Information</h5>
+          <p class="small text-muted mb-3">
+            Review the exact information that will be shared with {{ organization.name }}. No government KYC or sensitive history is disclosed.
+          </p>
+
+          <div class="mb-3">
+            <label for="alias_name" class="form-label small fw-semibold">Preferred Name or Alias</label>
+            <input type="text" class="form-control" id="alias_name" name="alias_name" 
+                   value="{{ profile.alias_name if profile else 'Community Member' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="contact_phone" class="form-label small fw-semibold">Contact Phone Number (Optional)</label>
+            <input type="tel" class="form-control" id="contact_phone" name="contact_phone" 
+                   placeholder="+91 98480 12345"
+                   value="{{ profile.contact_phone if profile else '' }}">
+            <small class="text-muted">The organization caseworker or HR coordinator will use this number to contact you.</small>
+          </div>
+
+          <div class="p-3 bg-light rounded small border mb-4">
+            <div class="fw-bold text-dark mb-2">Profile Details to be Included:</div>
+            <ul class="mb-0 text-muted ps-3">
+              <li><strong>Skills:</strong> {{ profile.skills|join(', ') if profile and profile.skills else 'Basic Physical / General Entry' }}</li>
+              <li><strong>City & Area:</strong> {{ profile.city if profile else organization.city }}</li>
+              <li><strong>Availability:</strong> {{ profile.availability|capitalize if profile else 'Immediate' }}</li>
+              {% if profile and profile.practical_barriers %}
+                <li><strong>Stated Practical Constraints:</strong> {{ profile.practical_barriers|join(', ')|replace('_', ' ')|title }}</li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <!-- Explicit Consent Checkbox -->
+          <div class="p-3 bg-teal-light rounded border border-teal mb-4" style="background:#f0fdfa; border-color:#99f6e4;">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="referral_consent" id="referral_consent" value="yes" required>
+              <label class="form-check-label small fw-bold text-teal" style="color:#0f766e;" for="referral_consent">
+                I explicitly consent to sharing this limited profile information with {{ organization.name }} for the sole purpose of referral review, interview scheduling, or support enrollment.
+              </label>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+            <button type="submit" class="btn btn-udaan-primary btn-lg">
+              <i class="bi bi-check2-circle me-1"></i> {{ t('submit_referral_btn') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

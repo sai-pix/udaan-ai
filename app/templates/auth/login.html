@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In — Udaan AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-5">
+      
+      <!-- Main Login Card -->
+      <div class="card card-udaan p-4 p-md-5 bg-white mb-4">
+        <div class="text-center mb-4">
+          <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" width="48" height="48" class="mb-2">
+          <h3 class="fw-bold">Sign In to Udaan AI</h3>
+          <p class="text-muted small">For partner organization caseworkers, employers, and administrators</p>
+        </div>
+
+        <form action="{{ url_for('auth.login') }}" method="POST">
+          <div class="mb-3">
+            <label for="identifier" class="form-label small fw-semibold">Username or Email</label>
+            <input type="text" class="form-control" id="identifier" name="identifier" required autofocus>
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label small fw-semibold">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+
+          <button type="submit" class="btn btn-udaan-primary w-100 py-2">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+          </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top text-center small">
+          <span class="text-muted">Need a new staff account?</span>
+          <a href="{{ url_for('auth.register') }}" class="fw-semibold text-decoration-none ms-1">Register here</a>
+        </div>
+      </div>
+
+      <!-- Demo Quick-Logins (When DEMO_MODE is true) -->
+      {% if demo_mode %}
+        <div class="card card-udaan p-4 bg-light border-warning mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge badge-demo">DEMO SHORTCUTS</span>
+            <strong class="small text-dark">One-Click Demonstration Logins</strong>
+          </div>
+          <p class="small text-muted mb-3">Explore the application instantly without entering credentials:</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('auth.demo_login', role='ngo') }}" class="btn btn-sm btn-outline-warning text-dark text-start">
+              <i class="bi bi-person-badge-fill me-2 text-warning"></i>
+              <strong>NGO Staff</strong> &bull; Karuna Shelter & Livelihood Trust
+            </a>
+            <a href="{{ url_for('auth.demo_login', role='employer') }}" class="btn btn-sm btn-outline-success text-start">
+              <i class="bi bi-briefcase-fill me-2 text-success"></i>
+              <strong>Employer</strong> &bull; Coastal Logistics HR
+            </a>
+            <a href="{{ url_for('auth.demo_login', role='admin') }}" class="btn btn-sm btn-outline-danger text-start">
+              <i class="bi bi-shield-lock-fill me-2 text-danger"></i>
+              <strong>Administrator</strong> &bull; System Platform Admin
+            </a>
+            <a href="{{ url_for('auth.demo_login', role='seeker') }}" class="btn btn-sm btn-outline-primary text-start">
+              <i class="bi bi-compass-fill me-2 text-primary"></i>
+              <strong>Support Seeker</strong> &bull; Raju V. (Andhra Pilot Scenario)
+            </a>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Bootstrap Admin Mechanism Accordion -->
+      <div class="accordion" id="bootstrapAccordion">
+        <div class="accordion-item border-0 bg-transparent">
+          <h2 class="accordion-header" id="headingBootstrap">
+            <button class="accordion-button collapsed py-2 px-3 small text-muted bg-white rounded border" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBootstrap" aria-expanded="false" aria-controls="collapseBootstrap">
+              <i class="bi bi-key me-2"></i> Initial Admin Bootstrap (For Live Deployment)
+            </button>
+          </h2>
+          <div id="collapseBootstrap" class="accordion-collapse collapse" aria-labelledby="headingBootstrap" data-bs-parent="#bootstrapAccordion">
+            <div class="accordion-body bg-white border rounded mt-2 p-3 small">
+              <form action="{{ url_for('auth.bootstrap_admin') }}" method="POST">
+                <p class="text-muted mb-2">Initialize the first system administrator using your server's <code>ADMIN_SETUP_SECRET</code>.</p>
+                <div class="mb-2">
+                  <label class="form-label mb-1">Bootstrap Secret</label>
+                  <input type="password" class="form-control form-control-sm" name="setup_secret" placeholder="ADMIN_SETUP_SECRET" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label mb-1">Admin Username</label>
+                  <input type="text" class="form-control form-control-sm" name="username" value="system_admin" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label mb-1">Admin Email</label>
+                  <input type="email" class="form-control form-control-sm" name="email" value="admin@udaan.org" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label mb-1">Password</label>
+                  <input type="password" class="form-control form-control-sm" name="password" placeholder="At least 8 characters" required>
+                </div>
+                <button type="submit" class="btn btn-sm btn-danger w-100">Bootstrap Admin</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

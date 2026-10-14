@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Verified Livelihood Opportunities — Udaan AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold mb-1">Fair-Wage Jobs & Sponsored Training</h2>
+      <p class="text-muted small mb-0">Verified local opportunities with transparent wages and barrier assistance in Andhra Pradesh.</p>
+    </div>
+    <a href="{{ url_for('intake.intake_form') }}" class="btn btn-udaan-primary">
+      <i class="bi bi-compass me-1"></i> Match to My Skills & Barriers
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="card card-udaan p-3 mb-4 bg-white">
+    <form action="{{ url_for('main.opportunities') }}" method="GET" class="row g-2 align-items-center">
+      <div class="col-md-5">
+        <select class="form-select form-select-sm" name="type">
+          <option value="">All Opportunity Types</option>
+          <option value="job" {% if selected_type == 'job' %}selected{% endif %}>Regular Job</option>
+          <option value="daily_wage" {% if selected_type == 'daily_wage' %}selected{% endif %}>Daily Wage Work</option>
+          <option value="training" {% if selected_type == 'training' %}selected{% endif %}>Vocational Training</option>
+        </select>
+      </div>
+      <div class="col-md-5">
+        <select class="form-select form-select-sm" name="city">
+          <option value="">All Pilot Cities</option>
+          {% for c in pilot_cities %}
+            <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-sm btn-udaan-primary w-100">
+          <i class="bi bi-filter me-1"></i> Filter
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Opportunities List -->
+  <div class="row g-4">
+    {% for opp in opportunities %}
+      <div class="col-lg-6">
+        <div class="card card-udaan h-100 p-4 bg-white d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="badge bg-light text-dark border text-uppercase">{{ opp.opportunity_type|replace('_', ' ') }}</span>
+              {% if opp.is_demo_data %}<span class="badge badge-demo ms-1">DEMO DATA</span>{% endif %}
+            </div>
+            <div>
+              {% if opp.verification_status == 'verified' %}
+                <span class="badge badge-verified"><i class="bi bi-patch-check-fill me-1"></i> Verified Terms</span>
+              {% else %}
+                <span class="badge badge-pending">Pending Audit</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <h5 class="fw-bold mb-1 text-dark">{{ opp.title }}</h5>
+          <div class="small fw-semibold text-teal mb-2" style="color:#0f766e;">
+            Employer: {{ opp.employer_name }} &bull; 
+            <span class="text-success fw-bold">{{ opp.wage_or_stipend }}</span>
+          </div>
+
+          <p class="text-muted small mb-3 flex-grow-1">{{ opp.description }}</p>
+
+          <div class="p-2 bg-light rounded small mb-3">
+            <div class="mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ opp.location_locality }}, {{ opp.city }} &bull; <i class="bi bi-clock me-1"></i> {{ opp.hours_type|replace('_', ' ')|capitalize }}</div>
+            <div class="mb-1"><strong>Skills:</strong> {{ opp.requirements_skills|join(', ') if opp.requirements_skills else 'Entry-Level Readiness' }}</div>
+            <div class="text-muted"><strong>ID Terms:</strong> {{ opp.requirements_documentation }}</div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
+            <span class="small text-muted">Audited: {{ opp.last_verified_date.strftime('%b %Y') if opp.last_verified_date else 'Recent' }}</span>
+            <a href="{{ url_for('referral.create_referral_request', org_id=opp.organization_id, opp_id=opp.id) }}" class="btn btn-sm btn-udaan-primary">
+              <i class="bi bi-send-check me-1"></i> Request Referral &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12 text-center py-5 text-muted">
+        <h5>No active opportunities found.</h5>
+        <a href="{{ url_for('main.opportunities') }}" class="btn btn-sm btn-outline-secondary mt-2">Clear Filters</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

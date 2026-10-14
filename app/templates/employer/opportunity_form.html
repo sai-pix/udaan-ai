@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Post New Opportunity — {{ organization.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card card-udaan p-4 p-md-5 bg-white">
+        <div class="mb-4">
+          <a href="{{ url_for('employer.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-2">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+          </a>
+          <h2 class="fw-bold">Post Fair-Wage Opportunity</h2>
+          <p class="text-muted">Listing for <strong>{{ organization.name }}</strong></p>
+        </div>
+
+        <form action="{{ url_for('employer.create_opportunity') }}" method="POST">
+          <div class="mb-3">
+            <label for="title" class="form-label small fw-semibold">Job / Training Role Title</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="e.g. Warehouse Inventory Assistant" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label for="opportunity_type" class="form-label small fw-semibold">Opportunity Type</label>
+              <select class="form-select" id="opportunity_type" name="opportunity_type">
+                <option value="job" selected>Regular Job</option>
+                <option value="daily_wage">Daily Wage Work</option>
+                <option value="training">Vocational Training / Apprenticeship</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="hours_type" class="form-label small fw-semibold">Schedule Type</label>
+              <select class="form-select" id="hours_type" name="hours_type">
+                <option value="full_time" selected>Full Time (8 Hours)</option>
+                <option value="part_time">Part Time</option>
+                <option value="daily">Daily Shifts</option>
+                <option value="flexible">Flexible</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label for="city" class="form-label small fw-semibold">City in Andhra Pradesh</label>
+              <select class="form-select" id="city" name="city">
+                {% for c in pilot_cities %}
+                  <option value="{{ c }}" {% if organization.city == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="location_locality" class="form-label small fw-semibold">Locality / Area</label>
+              <input type="text" class="form-control" id="location_locality" name="location_locality" placeholder="e.g. Gajuwaka or Benz Circle" value="{{ organization.locality }}">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="wage_or_stipend" class="form-label small fw-semibold">Wage / Compensation Details</label>
+            <input type="text" class="form-control" id="wage_or_stipend" name="wage_or_stipend" placeholder="e.g. ₹14,000 / month or ₹550 / day" required>
+            <small class="text-muted">Transparent wages foster dignified livelihood pathways.</small>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label small fw-semibold">Role Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Describe primary day-to-day duties, protective gear provided, break times..."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="requirements_skills" class="form-label small fw-semibold">Required Skills (Comma separated)</label>
+            <input type="text" class="form-control" id="requirements_skills" name="requirements_skills" placeholder="e.g. Cleaning, Physical Stamina, Basic Numerical Sense">
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="requirements_documentation" class="form-label small fw-semibold">Documentation Requirements</label>
+              <input type="text" class="form-control" id="requirements_documentation" name="requirements_documentation" value="Aadhaar or local verification assistance acceptable">
+            </div>
+            <div class="col-md-6">
+              <label for="prerequisites" class="form-label small fw-semibold">Physical / Shift Prerequisites</label>
+              <input type="text" class="form-control" id="prerequisites" name="prerequisites" placeholder="e.g. Ability to lift 15kg boxes, punctual arrival">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-udaan-primary btn-lg w-100">
+            <i class="bi bi-check-circle me-1"></i> Publish Opportunity
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

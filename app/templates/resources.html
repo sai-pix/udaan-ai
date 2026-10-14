@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Verified Community Resources — Udaan AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold mb-1">Verified Community Resources</h2>
+      <p class="text-muted small mb-0">Shelters, nutrition canteens, welfare documentation desks, and vocational workshops across Andhra Pradesh.</p>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="card card-udaan p-3 mb-4 bg-white">
+    <form action="{{ url_for('main.resources') }}" method="GET" class="row g-2 align-items-center">
+      <div class="col-md-4">
+        <input type="text" class="form-control form-control-sm" name="q" placeholder="Search by name or keywords..." value="{{ search_query or '' }}">
+      </div>
+      <div class="col-md-3">
+        <select class="form-select form-select-sm" name="category">
+          <option value="">All Support Categories</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>
+              {% if current_lang == 'te' %}{{ cat.label_te }}{% else %}{{ cat.label_en }}{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select form-select-sm" name="city">
+          <option value="">All Pilot Cities</option>
+          {% for c in pilot_cities %}
+            <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-sm btn-udaan-primary w-100">
+          <i class="bi bi-filter me-1"></i> Filter
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Resource Cards Grid -->
+  <div class="row g-4">
+    {% for r in resources %}
+      <div class="col-lg-6">
+        <div class="card card-udaan h-100 p-4 bg-white d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="badge bg-light text-dark border text-uppercase">{{ r.category }}</span>
+              {% if r.is_demo_data %}<span class="badge badge-demo ms-1">DEMO DATA</span>{% endif %}
+            </div>
+            <div>
+              {% if r.verified %}
+                <span class="badge badge-verified"><i class="bi bi-patch-check-fill me-1"></i> Verified</span>
+              {% else %}
+                <span class="badge badge-pending">Pending Audit</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <h5 class="fw-bold mb-1 text-dark">{{ r.name }}</h5>
+          <small class="text-teal fw-semibold mb-2" style="color:#0f766e;">{{ r.organization.name }}</small>
+          
+          <p class="text-muted small mb-3 flex-grow-1">{{ r.description }}</p>
+
+          <div class="p-2 bg-light rounded small mb-3">
+            <div class="text-muted mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ r.locality }}, {{ r.city }}</div>
+            {% if r.contact_phone %}
+              <div class="text-muted mb-1"><i class="bi bi-telephone-fill text-primary me-1"></i> {{ r.contact_phone }}</div>
+            {% endif %}
+            <div class="text-muted"><i class="bi bi-clock-history me-1"></i> Verified on: {{ r.last_verified_date.strftime('%b %d, %Y') if r.last_verified_date else 'Recent' }}</div>
+          </div>
+
+          <!-- Direct Contact & Referral Action Toolbar -->
+          <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+            {% if r.contact_phone %}
+              <a href="tel:{{ r.contact_phone }}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-telephone me-1"></i> Call
+              </a>
+              <button class="btn btn-sm btn-light border" onclick="copyToClipboard('{{ r.name }}: {{ r.contact_phone }}', this)">
+                <i class="bi bi-clipboard me-1"></i> Copy
+              </button>
+            {% endif %}
+            <a href="{{ url_for('referral.create_referral_request', org_id=r.organization_id) }}" class="btn btn-sm btn-udaan-primary ms-auto">
+              <i class="bi bi-send-check me-1"></i> Request Referral
+            </a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12 text-center py-5 text-muted">
+        <h5>No resources match your search criteria.</h5>
+        <a href="{{ url_for('main.resources') }}" class="btn btn-sm btn-outline-secondary mt-2">Clear Filters</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

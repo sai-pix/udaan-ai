@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff Portal — {{ organization.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Org Header & Demo notice -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="badge bg-primary">{{ organization.org_type|upper }}</span>
+        {% if organization.is_demo_data %}
+          <span class="badge badge-demo">DEMO ORGANIZATION</span>
+        {% endif %}
+      </div>
+      <h2 class="fw-bold mb-1">{{ organization.name }}</h2>
+      <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i> {{ organization.locality }}, {{ organization.city }} &bull; Staff Casework Dashboard</p>
+    </div>
+    <div>
+      <span class="badge bg-light text-dark border p-2">
+        <i class="bi bi-shield-lock-fill text-success me-1"></i> Strict Organization Data Isolation Active
+      </span>
+    </div>
+  </div>
+
+  {% if organization.is_demo_data %}
+    <div class="alert alert-warning small d-flex align-items-center mb-4">
+      <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+      <div>
+        <strong>Demonstration Account Notice:</strong> Actions performed here update simulated pilot records and do not send automated external SMS/emails or contact real community individuals.
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Status Metric Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card card-udaan p-3 text-center bg-white">
+        <div class="fs-4 fw-bold text-primary">{{ counts.total }}</div>
+        <small class="text-muted">Total Referrals</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card card-udaan p-3 text-center bg-white">
+        <div class="fs-4 fw-bold text-warning">{{ counts.submitted + counts.under_review }}</div>
+        <small class="text-muted">Pending Review</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card card-udaan p-3 text-center bg-white">
+        <div class="fs-4 fw-bold text-info">{{ counts.scheduled }}</div>
+        <small class="text-muted">Appointments</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card card-udaan p-3 text-center bg-white">
+        <div class="fs-4 fw-bold text-success">{{ counts.completed }}</div>
+        <small class="text-muted">Completed</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Referrals Table -->
+  <div class="card card-udaan bg-white p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      <h5 class="fw-bold mb-0">Assigned Referrals</h5>
+      
+      <!-- Status Filter Pills -->
+      <div class="btn-group btn-group-sm" role="group">
+        <a href="{{ url_for('org.dashboard') }}" class="btn btn-outline-secondary {% if not current_status_filter %}active{% endif %}">All</a>
+        <a href="{{ url_for('org.dashboard', status='submitted') }}" class="btn btn-outline-secondary {% if current_status_filter == 'submitted' %}active{% endif %}">Submitted</a>
+        <a href="{{ url_for('org.dashboard', status='under_review') }}" class="btn btn-outline-secondary {% if current_status_filter == 'under_review' %}active{% endif %}">Review</a>
+        <a href="{{ url_for('org.dashboard', status='appointment_scheduled') }}" class="btn btn-outline-secondary {% if current_status_filter == 'appointment_scheduled' %}active{% endif %}">Scheduled</a>
+        <a href="{{ url_for('org.dashboard', status='completed') }}" class="btn btn-outline-secondary {% if current_status_filter == 'completed' %}active{% endif %}">Completed</a>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Reference Code</th>
+            <th>Seeker Alias</th>
+            <th>Target Service / Job</th>
+            <th>Contact Phone</th>
+            <th>Submitted</th>
+            <th>Status</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in referrals %}
+            <tr>
+              <td><strong class="text-teal" style="color:#0f766e;">{{ r.reference_number }}</strong></td>
+              <td>{{ r.seeker_alias_or_name }}</td>
+              <td>{{ r.opportunity.title if r.opportunity else 'Support Service' }}</td>
+              <td>{{ r.seeker_contact_phone or 'Not provided' }}</td>
+              <td><small class="text-muted">{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</small></td>
+              <td>
+                {% if r.status == 'submitted' %}
+                  <span class="badge bg-secondary">Submitted</span>
+                {% elif r.status == 'under_review' %}
+                  <span class="badge bg-info text-dark">Under Review</span>
+                {% elif r.status == 'accepted' %}
+                  <span class="badge bg-success">Accepted</span>
+                {% elif r.status == 'appointment_scheduled' %}
+                  <span class="badge bg-warning text-dark">Scheduled</span>
+                {% elif r.status == 'completed' %}
+                  <span class="badge bg-success">Completed</span>
+                {% elif r.status == 'declined' %}
+                  <span class="badge bg-danger">Declined</span>
+                {% else %}
+                  <span class="badge bg-light text-dark border">{{ r.status }}</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{{ url_for('org.referral_detail', referral_id=r.id) }}" class="btn btn-sm btn-outline-primary">
+                  Review & Update &rarr;
+                </a>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">
+                No referrals found matching the selected filter.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

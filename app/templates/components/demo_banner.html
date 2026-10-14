@@ -1,0 +1,15 @@
+{% if demo_mode %}
+<div class="demo-banner">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge badge-demo text-uppercase"><i class="bi bi-info-circle-fill me-1"></i> {{ t('demo_mode') }}</span>
+      <span>{{ t('demo_banner_text') }}</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a href="{{ url_for('main.load_demo_scenario') }}" class="btn btn-sm btn-outline-warning text-dark py-0 px-2 fw-semibold" title="Reload synthetic pilot scenario">
+        <i class="bi bi-arrow-clockwise me-1"></i> {{ t('load_demo') }}
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}

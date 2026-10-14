@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Privacy Safeguards & Rights — Udaan AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card card-udaan p-4 p-md-5 bg-white">
+        <h1 class="fw-bold text-teal mb-3" style="color:#0f766e;">Privacy-First Data Architecture</h1>
+        <p class="lead text-dark">
+          Dignity, informed consent, and minimal data footprint.
+        </p>
+
+        <div class="alert alert-success d-flex align-items-center mb-4 border-0">
+          <i class="bi bi-shield-check fs-2 me-3 text-success"></i>
+          <div>
+            <strong>Strict Zero-Forced-KYC Principle</strong>
+            <p class="small mb-0">Udaan AI never demands Aadhaar numbers, biometric scans, legal identity documents, home addresses, photographs, or personal life histories as a prerequisite to access pathways.</p>
+          </div>
+        </div>
+
+        <h4 class="fw-bold mt-4 mb-3 border-bottom pb-2">1. Data Minimization</h4>
+        <p class="text-muted">
+          We collect only information voluntarily provided to generate actionable livelihood pathways: preferred language, skills, broad locality/city, practical barriers, and requested support categories.
+        </p>
+
+        <h4 class="fw-bold mt-4 mb-3 border-bottom pb-2">2. Explicit Consent-Based Sharing</h4>
+        <p class="text-muted">
+          Your profile is never publicly browsable. Employers and NGOs cannot search a list of vulnerable individuals. Information is shared <strong>only when you explicitly trigger a referral request</strong> to a specific chosen partner organization.
+        </p>
+
+        <h4 class="fw-bold mt-4 mb-3 border-bottom pb-2">3. Right to Erasure (Delete My Data)</h4>
+        <p class="text-muted">
+          You hold complete ownership of your session profile. You can permanently erase your profile and generated pathways from our active database at any time with a single click.
+        </p>
+
+        <form action="{{ url_for('main.delete_my_data') }}" method="POST" onsubmit="return confirm('Erase your session profile immediately?');" class="mt-3">
+          <button type="submit" class="btn btn-outline-danger">
+            <i class="bi bi-trash3 me-1"></i> Erase All My Session Data Now
+          </button>
+        </form>
+
+        <h4 class="fw-bold mt-5 mb-3 border-bottom pb-2">4. Non-Discrimination & Algorithmic Boundaries</h4>
+        <p class="text-muted">
+          Our rule-based matching engine operates entirely independently from large language models. The system never infers or records caste, religion, disability, gender identity, or criminal history.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

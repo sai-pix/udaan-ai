@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Referral Review — {{ referral.reference_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="mb-4">
+    <a href="{{ url_for('org.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-2">
+      <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div>
+        <h2 class="fw-bold mb-0">Referral: {{ referral.reference_number }}</h2>
+        <small class="text-muted">Assigned to: {{ organization.name }}</small>
+      </div>
+      <div>
+        <span class="badge bg-primary fs-6">{{ referral.status|replace('_', ' ')|capitalize }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left: Consented Information Snapshot -->
+    <div class="col-lg-6">
+      <div class="card card-udaan p-4 bg-white h-100">
+        <h5 class="fw-bold mb-3 border-bottom pb-2">
+          <i class="bi bi-shield-check text-success me-1"></i> Consented Profile Information
+        </h5>
+        
+        <div class="mb-3">
+          <small class="text-muted d-block">Seeker Preferred Alias:</small>
+          <strong class="fs-5">{{ referral.seeker_alias_or_name }}</strong>
+        </div>
+
+        <div class="mb-3">
+          <small class="text-muted d-block">Contact Phone (Voluntarily Consented):</small>
+          {% if referral.seeker_contact_phone %}
+            <strong class="text-primary fs-6">
+              <i class="bi bi-telephone me-1"></i> {{ referral.seeker_contact_phone }}
+            </strong>
+            <a href="tel:{{ referral.seeker_contact_phone }}" class="btn btn-sm btn-outline-primary ms-2">Call</a>
+          {% else %}
+            <span class="text-muted">No phone number provided</span>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <small class="text-muted d-block">Target Opportunity or Program:</small>
+          <strong>{{ referral.opportunity.title if referral.opportunity else 'General Community Casework / Support' }}</strong>
+        </div>
+
+        <div class="p-3 bg-light rounded small border mb-3">
+          <div class="fw-bold mb-2">Consented Intake Details:</div>
+          <div class="mb-1"><strong>Skills:</strong> {{ referral.consented_data_snapshot.get('skills', [])|join(', ') }}</div>
+          <div class="mb-1"><strong>City/Locality:</strong> {{ referral.consented_data_snapshot.get('city') }} ({{ referral.consented_data_snapshot.get('preferred_locality') or 'General' }})</div>
+          <div class="mb-1"><strong>Availability:</strong> {{ referral.consented_data_snapshot.get('availability', 'Immediate')|capitalize }}</div>
+          <div><strong>Identified Practical Barriers:</strong>
+            {% for b in referral.consented_data_snapshot.get('relevant_barriers', []) %}
+              <span class="badge bg-warning text-dark me-1">{{ b|replace('_', ' ')|capitalize }}</span>
+            {% else %}
+              <span class="text-muted">None specified</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="small text-muted mt-auto pt-2 border-top">
+          <i class="bi bi-lock-fill text-success me-1"></i> Consented snapshot timestamp: {{ referral.created_at.strftime('%Y-%m-%d %H:%M UTC') if referral.created_at else '' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Status Update, Appointment & Caseworker Notes -->
+    <div class="col-lg-6">
+      <div class="card card-udaan p-4 bg-white h-100">
+        <h5 class="fw-bold mb-3 border-bottom pb-2">
+          <i class="bi bi-gear-wide-connected text-primary me-1"></i> Update Referral Status
+        </h5>
+
+        <form action="{{ url_for('org.referral_detail', referral_id=referral.id) }}" method="POST">
+          <div class="mb-3">
+            <label for="status" class="form-label small fw-semibold">Referral Status</label>
+            <select class="form-select" id="status" name="status" required>
+              {% for s in allowed_statuses %}
+                <option value="{{ s }}" {% if referral.status == s %}selected{% endif %}>
+                  {{ s|replace('_', ' ')|capitalize }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="appointment_date" class="form-label small fw-semibold">
+              <i class="bi bi-calendar-event me-1"></i> Confirmed Appointment Date & Time (Optional)
+            </label>
+            <input type="datetime-local" class="form-control" id="appointment_date" name="appointment_date" 
+                   value="{{ referral.appointment_date.strftime('%Y-%m-%dT%H:%M') if referral.appointment_date else '' }}">
+            <small class="text-muted">Will be visible to the seeker on their tracking portal.</small>
+          </div>
+
+          <div class="mb-3">
+            <label for="staff_notes" class="form-label small fw-semibold">Caseworker Notes / Contact Attempt Log</label>
+            <textarea class="form-control" id="staff_notes" name="staff_notes" rows="3" 
+                      placeholder="e.g. Spoke with candidate; verified cleaning experience; invited for orientation on Tuesday at 10 AM.">{{ referral.staff_notes or '' }}</textarea>
+          </div>
+
+          <div class="mb-4">
+            <label for="outcome_summary" class="form-label small fw-semibold">Recorded Outcome (Upon Completion or Closure)</label>
+            <input type="text" class="form-control" id="outcome_summary" name="outcome_summary" 
+                   placeholder="e.g. Placed in warehouse packing role; first weekly stipend received."
+                   value="{{ referral.outcome_summary or '' }}">
+          </div>
+
+          <button type="submit" class="btn btn-udaan-primary w-100">
+            <i class="bi bi-save me-1"></i> Save Updates & Log Milestone
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

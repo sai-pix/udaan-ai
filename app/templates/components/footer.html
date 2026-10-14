@@ -1,0 +1,57 @@
+<footer>
+  <div class="container">
+    <div class="row g-4 mb-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" width="28" height="28">
+          <h5 class="fw-bold mb-0 text-dark">{{ t('app_name') }}</h5>
+        </div>
+        <p class="small text-muted mb-2">{{ t('tagline') }}</p>
+        <p class="small text-muted mb-0">
+          Targeted pilot initiative in Andhra Pradesh, India (Visakhapatnam, Vijayawada, Guntur, Tirupati).
+        </p>
+      </div>
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-bold text-dark mb-3">Navigation</h6>
+        <ul class="list-unstyled small mb-0">
+          <li class="mb-2"><a href="{{ url_for('main.index') }}" class="text-decoration-none text-muted">Home</a></li>
+          <li class="mb-2"><a href="{{ url_for('intake.intake_form') }}" class="text-decoration-none text-muted">Intake Form</a></li>
+          <li class="mb-2"><a href="{{ url_for('main.resources') }}" class="text-decoration-none text-muted">Verified Resources</a></li>
+          <li class="mb-2"><a href="{{ url_for('referral.track_referral') }}" class="text-decoration-none text-muted">Track Referral</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold text-dark mb-3">Privacy & Trust</h6>
+        <ul class="list-unstyled small mb-0">
+          <li class="mb-2"><a href="{{ url_for('main.privacy') }}" class="text-decoration-none text-muted">Privacy Safeguards</a></li>
+          <li class="mb-2"><a href="{{ url_for('main.about') }}" class="text-decoration-none text-muted">AI Transparency & Ethics</a></li>
+          <li class="mb-2">
+            <form action="{{ url_for('main.delete_my_data') }}" method="POST" onsubmit="return confirm('Erase your session profile and all created pathways from this computer?');">
+              <button type="submit" class="btn btn-link btn-sm p-0 text-danger text-decoration-none">
+                <i class="bi bi-trash3 me-1"></i> {{ t('delete_my_data') }}
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold text-dark mb-3">Community Pilot Audit</h6>
+        <div class="p-2 rounded bg-light border small text-muted">
+          <i class="bi bi-shield-check text-success me-1"></i> Verified Partner Network
+          <br>
+          <span class="text-muted">Last Audit: October 2026</span>
+          <br>
+          <span class="badge bg-secondary mt-1">Andhra Pradesh Pilot v1.0</span>
+        </div>
+      </div>
+    </div>
+    <hr class="my-3 text-muted">
+    <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted">
+      <div>&copy; 2026 Udaan AI — Social Impact Livelihood Pathways. Built with dignity & privacy.</div>
+      <div class="mt-2 mt-md-0">
+        <span class="text-muted me-3"><i class="bi bi-lock-fill text-success me-1"></i> No Forced Aadhaar/KYC</span>
+        <span class="text-muted"><i class="bi bi-heart-fill text-danger me-1"></i> Open & Free Tier</span>
+      </div>
+    </div>
+  </div>
+</footer>

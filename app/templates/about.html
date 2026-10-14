@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}About & Product Vision — Udaan AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card card-udaan p-4 p-md-5 bg-white mb-4">
+        <h1 class="fw-bold text-teal mb-3" style="color:#0f766e;">About Udaan AI</h1>
+        <p class="lead text-dark">
+          "From immediate needs to dignified, sustained livelihoods."
+        </p>
+        <p class="text-muted">
+          Udaan AI is an open, barrier-aware livelihood pathways platform designed for adults experiencing homelessness, long-term unemployment, displacement, or acute economic insecurity in Andhra Pradesh, India.
+        </p>
+
+        <h4 class="fw-bold mt-4 mb-3 border-bottom pb-2">The Barrier-Aware Philosophy</h4>
+        <p class="text-muted">
+          Traditional employment boards operate on the assumption of baseline stability: that an applicant possesses a stable address, government ID documentation, regular meals, transportation money, and active bank accounts. For vulnerable adults, these assumed prerequisites form an insurmountable wall.
+        </p>
+        <p class="text-muted">
+          Udaan AI breaks this cycle by treating <strong>practical barriers as primary variables</strong>. When a user requests work assistance, our algorithm:
+        </p>
+        <ul class="text-muted">
+          <li>Detects immediate acute needs (night shelter, hot food, basic medical safety) and prioritizes verified community relief.</li>
+          <li>Identifies prerequisite hurdles (lack of Aadhaar copy, absence of Jan Dhan account, transport distance) and links them to specialized civic desks.</li>
+          <li>Recommends verified, fair-wage livelihood openings and free vocational training without upfront tuition fees.</li>
+          <li>Constructs a personal 6-step sequential roadmap where each step clearly indicates its purpose, verified contact details, and progress milestones.</li>
+        </ul>
+
+        <h4 class="fw-bold mt-4 mb-3 border-bottom pb-2">Ethical AI Policies</h4>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded border h-100">
+              <strong class="d-block text-dark mb-1"><i class="bi bi-shield-check text-success me-1"></i> Transparent AI Assitance</strong>
+              <small class="text-muted">We use Gemini AI solely to understand natural language expressions and extract skills without judgment. AI never decides eligibility, invents vacancies, or replaces human review.</small>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded border h-100">
+              <strong class="d-block text-dark mb-1"><i class="bi bi-person-x text-danger me-1"></i> No Sensitive Inferences</strong>
+              <small class="text-muted">The system strictly prohibits inferring or recording caste, religion, criminal record, or sensitive personal histories. Dignity is non-negotiable.</small>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="fw-bold mt-4 mb-3 border-bottom pb-2">Andhra Pradesh Pilot Initiative</h4>
+        <p class="text-muted">
+          Our pilot is focused on the urban corridors of Visakhapatnam, Vijayawada, Guntur, and Tirupati, collaborating with municipal welfare desks, registered NGOs, and fair employers committed to transparent compensation.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

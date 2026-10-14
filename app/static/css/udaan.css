@@ -1,0 +1,214 @@
+/* Udaan AI — Accessible, Dignified, Warm Human-Centered Theme */
+:root {
+  --udaan-primary: #0f766e;
+  --udaan-primary-dark: #115e59;
+  --udaan-primary-light: #ccfbf1;
+  --udaan-secondary: #d97706;
+  --udaan-secondary-light: #fef3c7;
+  --udaan-accent: #0284c7;
+  --udaan-bg: #f8fafc;
+  --udaan-surface: #ffffff;
+  --udaan-text: #0f172a;
+  --udaan-text-muted: #475569;
+  --udaan-border: #e2e8f0;
+  --udaan-success: #16a34a;
+  --udaan-warning: #ea580c;
+  --udaan-danger: #dc2626;
+  --udaan-radius: 10px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--udaan-text);
+  background-color: var(--udaan-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Accessible focus styling */
+:focus-visible {
+  outline: 3px solid var(--udaan-secondary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Brand Navbar */
+.navbar-udaan {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--udaan-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--udaan-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-brand:hover {
+  color: var(--udaan-primary-dark);
+}
+
+/* Demo Mode Banner */
+.demo-banner {
+  background-color: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 16px;
+}
+
+.badge-demo {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%);
+  border-bottom: 1px solid #ccfbf1;
+  padding: 56px 0;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #134e4a;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: #334155;
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+/* Buttons */
+.btn-udaan-primary {
+  background-color: var(--udaan-primary);
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--udaan-radius);
+  padding: 10px 22px;
+  transition: all 0.2s ease;
+}
+
+.btn-udaan-primary:hover, .btn-udaan-primary:focus {
+  background-color: var(--udaan-primary-dark);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-udaan-secondary {
+  background-color: #ffffff;
+  color: var(--udaan-primary);
+  font-weight: 600;
+  border: 2px solid var(--udaan-primary);
+  border-radius: var(--udaan-radius);
+  padding: 8px 20px;
+}
+
+.btn-udaan-secondary:hover {
+  background-color: var(--udaan-primary-light);
+  color: var(--udaan-primary-dark);
+}
+
+/* Cards & Surfaces */
+.card-udaan {
+  background-color: var(--udaan-surface);
+  border: 1px solid var(--udaan-border);
+  border-radius: var(--udaan-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-udaan:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Pathway Timeline View */
+.pathway-step-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--udaan-border);
+  border-left: 6px solid var(--udaan-primary);
+  border-radius: var(--udaan-radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.pathway-step-card.completed {
+  border-left-color: var(--udaan-success);
+  background: #f0fdf4;
+}
+
+.pathway-step-card.skipped {
+  border-left-color: #94a3b8;
+  opacity: 0.75;
+}
+
+.step-number-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--udaan-primary);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-right: 12px;
+}
+
+/* Verification Badges */
+.badge-verified {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  font-weight: 600;
+}
+
+.badge-pending {
+  background-color: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+}
+
+/* Checkbox group styling for intake */
+.intake-choice-box {
+  border: 1px solid var(--udaan-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.intake-choice-box:hover {
+  background-color: #f8fafc;
+  border-color: var(--udaan-primary);
+}
+
+.intake-choice-box input[type="checkbox"]:checked + label {
+  font-weight: 600;
+  color: var(--udaan-primary-dark);
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background-color: #ffffff;
+  border-top: 1px solid var(--udaan-border);
+  padding: 32px 0 20px 0;
+  color: var(--udaan-text-muted);
+}

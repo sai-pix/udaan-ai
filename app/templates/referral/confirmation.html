@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Referral Submitted — {{ referral.reference_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 text-center">
+      <div class="card card-udaan p-5 bg-white border-success">
+        <div class="mb-3">
+          <i class="bi bi-check-circle-fill text-success display-3"></i>
+        </div>
+        <h2 class="fw-bold mb-2">Referral Request Submitted</h2>
+        <p class="text-muted">
+          Your consented request has been securely delivered to <strong>{{ referral.organization.name }}</strong>.
+        </p>
+
+        <!-- Reference Code Display -->
+        <div class="my-4 p-4 rounded-3 border bg-light text-center">
+          <small class="text-uppercase fw-bold text-muted d-block mb-1">Your Tracking Reference Code</small>
+          <div class="display-6 fw-bold text-teal tracking-wide mb-2" style="color:#0f766e; letter-spacing: 2px;">
+            {{ referral.reference_number }}
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('{{ referral.reference_number }}', this)">
+            <i class="bi bi-clipboard me-1"></i> Copy Code
+          </button>
+        </div>
+
+        <div class="alert alert-warning small text-start mb-4">
+          <h6 class="fw-bold mb-1"><i class="bi bi-info-circle-fill me-1"></i> What Happens Next?</h6>
+          <ul class="mb-0 ps-3">
+            <li>A caseworker or HR coordinator from the organization will review your profile.</li>
+            <li>Status is currently <strong>{{ referral.status|replace('_', ' ')|capitalize }}</strong>. Submitting does not automatically guarantee immediate acceptance or employment.</li>
+            <li>If you provided a phone number, they will attempt to contact you directly.</li>
+            <li>You can track the status anytime using your reference code without logging in.</li>
+          </ul>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+          <a href="{{ url_for('referral.track_referral', ref=referral.reference_number) }}" class="btn btn-udaan-primary">
+            <i class="bi bi-search me-1"></i> Track Referral Status
+          </a>
+          <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+            Return to Home
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Register — Udaan AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card card-udaan p-4 p-md-5 bg-white">
+        <div class="text-center mb-4">
+          <h3 class="fw-bold">Create an Account</h3>
+          <p class="text-muted small">Register as an NGO staff member, employer, or support seeker</p>
+        </div>
+
+        <form action="{{ url_for('auth.register') }}" method="POST">
+          <div class="mb-3">
+            <label for="username" class="form-label small fw-semibold">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label small fw-semibold">Email Address</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label small fw-semibold">Password</label>
+            <input type="password" class="form-control" id="password" name="password" minlength="8" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="role" class="form-label small fw-semibold">Account Role</label>
+            <select class="form-select" id="role" name="role" onchange="toggleOrgSelector(this.value)">
+              <option value="seeker">Support Seeker / Community Volunteer</option>
+              <option value="ngo_staff">NGO / Shelter Staff Member</option>
+              <option value="employer">Employer / Training Provider</option>
+            </select>
+          </div>
+
+          <div class="mb-4" id="org-selector-container" style="display: none;">
+            <label for="organization_id" class="form-label small fw-semibold">Associated Organization</label>
+            <select class="form-select" id="organization_id" name="organization_id">
+              <option value="">-- Select an Organization --</option>
+              {% for o in organizations %}
+                <option value="{{ o.id }}">{{ o.name }} ({{ o.city }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-udaan-primary w-100 py-2">
+            <i class="bi bi-person-plus me-1"></i> Register Account
+          </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top text-center small">
+          <span class="text-muted">Already registered?</span>
+          <a href="{{ url_for('auth.login') }}" class="fw-semibold text-decoration-none ms-1">Sign in here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function toggleOrgSelector(role) {
+  const container = document.getElementById('org-selector-container');
+  if (role === 'ngo_staff' || role === 'employer') {
+    container.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+  }
+}
+</script>
+{% endblock %}

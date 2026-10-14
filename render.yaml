@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: udaan-ai
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --threads 4
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: DEMO_MODE
+        value: "true"
+      - key: DEFAULT_LANGUAGE
+        value: "en"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_SETUP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: udaan-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+
+databases:
+  - name: udaan-db
+    plan: free
+    region: singapore
+    databaseName: udaan
+    user: udaan_user

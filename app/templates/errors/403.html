@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Access Denied (403) — Udaan AI{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+  <div class="py-5">
+    <h1 class="display-1 fw-bold text-danger">403</h1>
+    <h3 class="fw-bold mb-3">Access Denied</h3>
+    <p class="text-muted mb-4">You do not have authorization to view this organization's data or management portal.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-udaan-primary">Return to Home</a>
+  </div>
+</div>
+{% endblock %}

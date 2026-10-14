@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ pathway.title }} — {{ t('app_name') }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Header & Progress -->
+  <div class="row align-items-center mb-4 g-3">
+    <div class="col-md-8">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="badge bg-teal-light text-teal" style="background:#ccfbf1; color:#0f766e;">Personalized Roadmap</span>
+        <span class="badge bg-light text-dark border">{{ profile.city }}</span>
+        {% if pathway.status == 'completed' %}
+          <span class="badge bg-success">Pathway Completed</span>
+        {% endif %}
+      </div>
+      <h2 class="fw-bold mb-1">{{ pathway.title }}</h2>
+      <p class="text-muted small mb-0">{{ pathway.summary }}</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <button class="btn btn-sm btn-outline-secondary me-2" onclick="window.print()">
+        <i class="bi bi-printer me-1"></i> Print Pathway
+      </button>
+      <a href="{{ url_for('intake.intake_form') }}" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-pencil me-1"></i> Edit Intake
+      </a>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="card card-udaan p-3 mb-4 bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="small fw-bold">{{ t('pathway_progress') }}</span>
+      <span class="small fw-bold text-teal" style="color:#0f766e;">{{ completed_steps }} of {{ total_steps }} Steps Completed ({{ progress_percentage }}%)</span>
+    </div>
+    <div class="progress" style="height: 10px;">
+      <div class="progress-bar" role="progressbar" style="width: {{ progress_percentage }}%; background-color: #0f766e;" aria-valuenow="{{ progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+
+  <!-- Steps List -->
+  <div class="row">
+    <div class="col-lg-8">
+      {% for step in pathway.steps %}
+        <div class="pathway-step-card {{ step.status }}" id="step-card-{{ step.id }}">
+          <!-- Step Header -->
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-center">
+              <span class="step-number-badge">
+                {% if step.status == 'completed' %}
+                  <i class="bi bi-check-lg"></i>
+                {% else %}
+                  {{ step.step_order }}
+                {% endif %}
+              </span>
+              <div>
+                <span class="text-uppercase small fw-bold text-muted">{{ t('step') }} {{ step.step_order }} &bull; {{ step.purpose }}</span>
+                <h5 class="fw-bold mb-0 text-dark">{{ step.recommended_action }}</h5>
+              </div>
+            </div>
+            <div>
+              {% if step.status == 'completed' %}
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Completed</span>
+              {% elif step.status == 'in_progress' %}
+                <span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i> In Progress</span>
+              {% elif step.status == 'skipped' %}
+                <span class="badge bg-secondary">Skipped</span>
+              {% else %}
+                <span class="badge bg-light text-muted border">Pending</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Why Recommended -->
+          <div class="p-3 bg-light rounded small mb-3 border">
+            <strong class="text-teal d-block mb-1" style="color:#0f766e;">
+              <i class="bi bi-lightbulb-fill me-1"></i> {{ t('why_recommended') }}:
+            </strong>
+            <span class="text-muted">{{ step.reason }}</span>
+          </div>
+
+          <!-- Associated Resource or Opportunity Info -->
+          {% if step.resource %}
+            <div class="card p-3 mb-3 border-teal bg-white" style="border-color: #99f6e4;">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <span class="badge badge-verified mb-1">
+                    <i class="bi bi-patch-check-fill me-1"></i> Verified Partner Organization
+                  </span>
+                  {% if step.resource.is_demo_data %}
+                    <span class="badge badge-demo">DEMO DATA</span>
+                  {% endif %}
+                  <h6 class="fw-bold mb-1">{{ step.resource.name }}</h6>
+                  <p class="small text-muted mb-2">{{ step.resource.description }}</p>
+                  <div class="small text-muted">
+                    <i class="bi bi-geo-alt me-1"></i> {{ step.resource.locality }}, {{ step.resource.city }}
+                    {% if step.resource.contact_phone %}
+                      &bull; <i class="bi bi-telephone me-1"></i> {{ step.resource.contact_phone }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Direct Contact & Referral Action Toolbar -->
+              <div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-top">
+                {% if step.resource.contact_phone %}
+                  <a href="tel:{{ step.resource.contact_phone }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-telephone-outbound me-1"></i> Call Resource
+                  </a>
+                  <button type="button" class="btn btn-sm btn-light border" onclick="copyToClipboard('{{ step.resource.name }}: {{ step.resource.contact_phone }} ({{ step.resource.locality }})', this)">
+                    <i class="bi bi-clipboard me-1"></i> Copy Info
+                  </button>
+                {% endif %}
+                <a href="{{ url_for('referral.create_referral_request', org_id=step.resource.organization_id) }}" class="btn btn-sm btn-udaan-primary">
+                  <i class="bi bi-send-check me-1"></i> {{ t('request_referral') }}
+                </a>
+              </div>
+            </div>
+          {% elif step.opportunity %}
+            <div class="card p-3 mb-3 border-success bg-white" style="border-color: #86efac;">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <span class="badge bg-success mb-1">
+                    <i class="bi bi-briefcase-fill me-1"></i> Matched Livelihood Opportunity
+                  </span>
+                  {% if step.opportunity.is_demo_data %}
+                    <span class="badge badge-demo">DEMO DATA</span>
+                  {% endif %}
+                  <h6 class="fw-bold mb-1">{{ step.opportunity.title }}</h6>
+                  <div class="small fw-semibold text-teal mb-1" style="color:#0f766e;">
+                    Employer: {{ step.opportunity.employer_name }} &bull; {{ step.opportunity.wage_or_stipend }}
+                  </div>
+                  <p class="small text-muted mb-2">{{ step.opportunity.description }}</p>
+                  <div class="small text-muted">
+                    <i class="bi bi-geo-alt me-1"></i> {{ step.opportunity.location_locality }}, {{ step.opportunity.city }} &bull;
+                    <i class="bi bi-clock me-1"></i> {{ step.opportunity.hours_type|replace('_', ' ')|capitalize }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Referral / Application Actions -->
+              <div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-top">
+                <a href="{{ url_for('referral.create_referral_request', org_id=step.opportunity.organization_id, opp_id=step.opportunity.id) }}" class="btn btn-sm btn-udaan-primary">
+                  <i class="bi bi-send-check me-1"></i> Submit Consented Job Application Referral
+                </a>
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Human Confirmation Notice -->
+          {% if step.human_confirmation_required %}
+            <div class="small text-muted mb-3 d-flex align-items-center">
+              <i class="bi bi-person-check text-primary me-2"></i>
+              <span>Human confirmation required: A staff volunteer or coordinator will verify before final appointment.</span>
+            </div>
+          {% endif %}
+
+          <!-- Step Status Toggle Form & Personal Notes -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+            <div class="d-flex gap-2">
+              {% if step.status != 'completed' %}
+                <form action="{{ url_for('pathway.update_step_status', step_id=step.id) }}" method="POST" class="d-inline">
+                  <input type="hidden" name="status" value="completed">
+                  <button type="submit" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-check2-circle me-1"></i> {{ t('mark_complete') }}
+                  </button>
+                </form>
+              {% else %}
+                <form action="{{ url_for('pathway.update_step_status', step_id=step.id) }}" method="POST" class="d-inline">
+                  <input type="hidden" name="status" value="in_progress">
+                  <button type="submit" class="btn btn-sm btn-outline-warning text-dark">
+                    Re-open Step
+                  </button>
+                </form>
+              {% endif %}
+
+              {% if step.status != 'skipped' and step.status != 'completed' %}
+                <form action="{{ url_for('pathway.update_step_status', step_id=step.id) }}" method="POST" class="d-inline">
+                  <input type="hidden" name="status" value="skipped">
+                  <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    {{ t('skip_step') }}
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+
+            <!-- Notes Accordion/Collapse Toggle -->
+            <button class="btn btn-sm btn-link text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#notes-collapse-{{ step.id }}" aria-expanded="false">
+              <i class="bi bi-journal-text me-1"></i> {% if step.user_notes %}Notes (1){% else %}Add Note{% endif %}
+            </button>
+          </div>
+
+          <!-- Collapsible Notes Input -->
+          <div class="collapse mt-3 {% if step.user_notes %}show{% endif %}" id="notes-collapse-{{ step.id }}">
+            <form action="{{ url_for('pathway.update_step_notes', step_id=step.id) }}" method="POST">
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control" name="user_notes" placeholder="Write personal note or reminder (e.g. met volunteer Raju)..." value="{{ step.user_notes or '' }}">
+                <button class="btn btn-outline-secondary" type="submit">Save Note</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Right Sidebar: Seeker Profile Snapshot & Ethical Disclaimers -->
+    <div class="col-lg-4">
+      <div class="card card-udaan p-4 mb-4 bg-white sticky-top" style="top: 80px;">
+        <h5 class="fw-bold mb-3 border-bottom pb-2">Profile Snapshot</h5>
+        <div class="small mb-3">
+          <div class="text-muted">Alias / Voluntary Name:</div>
+          <div class="fw-bold">{{ profile.alias_name }}</div>
+        </div>
+        <div class="small mb-3">
+          <div class="text-muted">Target City:</div>
+          <div class="fw-bold">{{ profile.city }} {% if profile.preferred_locality %}({{ profile.preferred_locality }}){% endif %}</div>
+        </div>
+        <div class="small mb-3">
+          <div class="text-muted">Skills:</div>
+          <div>
+            {% for s in profile.skills %}
+              <span class="badge bg-light text-dark border me-1 mb-1">{{ s }}</span>
+            {% else %}
+              <span class="text-muted">General Entry Readiness</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="small mb-3">
+          <div class="text-muted">Identified Barriers:</div>
+          <div>
+            {% for b in profile.practical_barriers %}
+              <span class="badge bg-warning text-dark me-1 mb-1">{{ b|replace('_', ' ')|capitalize }}</span>
+            {% else %}
+              <span class="text-muted">None specified</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="p-3 bg-light rounded small border mb-3">
+          <strong class="d-block mb-1 text-dark"><i class="bi bi-shield-lock-fill text-success me-1"></i> Ethical Guardrail</strong>
+          <span class="text-muted">Udaan AI provides structured guidance, not legally binding job or shelter guarantees. Recommendations require human agency and mutual consent.</span>
+        </div>
+
+        <form action="{{ url_for('main.delete_my_data') }}" method="POST" onsubmit="return confirm('Permanently erase this pathway and your profile?');">
+          <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+            <i class="bi bi-trash3 me-1"></i> Erase My Data
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
