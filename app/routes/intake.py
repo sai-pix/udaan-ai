@@ -15,11 +15,10 @@ def intake_form():
     lang = session.get('lang', 'en')
     current_user = get_current_user()
 
-    # Pre-populate if profile already exists in session
     existing_profile = None
     profile_id = session.get('profile_id')
     if profile_id:
-        existing_profile = SupportSeekerProfile.query.get(profile_id)
+        existing_profile = db.session.get(SupportSeekerProfile, profile_id)
 
     return render_template(
         'intake/form.html',
@@ -33,10 +32,6 @@ def intake_form():
 
 @intake_bp.route('/intake/analyze-text', methods=['POST'])
 def analyze_text():
-    """
-    Async endpoint to parse natural language description using Gemini API
-    or transparent deterministic fallback.
-    """
     data = request.get_json() or {}
     raw_text = data.get('description', '')
     lang = data.get('language') or session.get('lang', 'en')
@@ -52,7 +47,6 @@ def submit_intake():
     lang = session.get('lang', 'en')
     current_user = get_current_user()
 
-    # Validation
     consent = request.form.get('consent_given')
     if not consent:
         flash("You must provide consent before your pathway can be created. We prioritize your privacy.", "danger")
@@ -66,17 +60,12 @@ def submit_intake():
     accessibility_needs = request.form.get('accessibility_needs', '').strip()
     raw_natural_input = request.form.get('raw_natural_input', '').strip()
 
-    # Parse skills
     skills_raw = request.form.get('skills', '')
     skills = [s.strip() for s in skills_raw.split(',') if s.strip()] if skills_raw else []
 
-    # Parse practical barriers checkboxes
     barriers = request.form.getlist('practical_barriers')
-    
-    # Parse requested support checkboxes
     requested_support = request.form.getlist('requested_support')
 
-    # If raw natural input was provided and structured data was passed back from JS
     structured_data_str = request.form.get('structured_data_json', '{}')
     try:
         structured_data = json.loads(structured_data_str)
@@ -85,7 +74,6 @@ def submit_intake():
 
     ai_assisted = (request.form.get('ai_assisted') == 'true')
 
-    # Create SupportSeekerProfile
     profile = SupportSeekerProfile(
         session_id=session.sid if hasattr(session, 'sid') else str(datetime.now().timestamp()),
         user_id=current_user.id if current_user else None,
@@ -110,10 +98,8 @@ def submit_intake():
     db.session.add(profile)
     db.session.commit()
 
-    # Save to session
     session['profile_id'] = profile.id
 
-    # Generate Personalized Livelihood Pathway
     pathway = PathwayService.generate_pathway(profile)
 
     flash("Your barrier-aware pathway has been successfully generated!", "success")

@@ -17,7 +17,7 @@ def dashboard():
 
     if current_user.role == 'admin':
         org_id = request.args.get('org_id', type=int) or current_user.organization_id or 4
-        org = Organization.query.get_or_404(org_id)
+        org = db.get_or_404(Organization, org_id)
     else:
         if not current_user.organization_id:
             flash("Your employer account is not linked to an organization profile.", "warning")
@@ -25,8 +25,6 @@ def dashboard():
         org = current_user.organization
 
     opportunities = Opportunity.query.filter_by(organization_id=org.id).all()
-    
-    # Referrals shared legitimately with this employer
     referrals = ReferralRequest.query.filter_by(organization_id=org.id).order_by(ReferralRequest.created_at.desc()).all()
 
     return render_template(
@@ -103,7 +101,7 @@ def create_opportunity():
 @roles_required('employer', 'admin')
 def toggle_opportunity(opp_id):
     current_user = get_current_user()
-    opp = Opportunity.query.get_or_404(opp_id)
+    opp = db.get_or_404(Opportunity, opp_id)
 
     if current_user.role == 'employer' and opp.organization_id != current_user.organization_id:
         abort(403)

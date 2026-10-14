@@ -15,10 +15,9 @@ def dashboard():
     lang = session.get('lang', 'en')
     current_user = get_current_user()
 
-    # Determine which organization to show
     if current_user.role == 'admin':
         org_id = request.args.get('org_id', type=int) or current_user.organization_id or 1
-        org = Organization.query.get_or_404(org_id)
+        org = db.get_or_404(Organization, org_id)
     else:
         if not current_user.organization_id:
             flash("Your staff account is not assigned to any organization.", "warning")
@@ -32,7 +31,6 @@ def dashboard():
 
     referrals = referral_query.order_by(ReferralRequest.created_at.desc()).all()
 
-    # Counts by status
     all_refs = ReferralRequest.query.filter_by(organization_id=org.id).all()
     counts = {
         'total': len(all_refs),
@@ -61,11 +59,10 @@ def dashboard():
 def referral_detail(referral_id):
     lang = session.get('lang', 'en')
     current_user = get_current_user()
-    referral = ReferralRequest.query.get_or_404(referral_id)
+    referral = db.get_or_404(ReferralRequest, referral_id)
 
-    # STRICT ISOLATION CHECK
     if current_user.role == 'ngo_staff' and referral.organization_id != current_user.organization_id:
-        abort(403) # Forbidden
+        abort(403)
 
     if request.method == 'POST':
         new_status = request.form.get('status')

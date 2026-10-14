@@ -15,12 +15,12 @@ def create_referral_request(org_id):
     lang = session.get('lang', 'en')
     current_user = get_current_user()
 
-    org = Organization.query.get_or_404(org_id)
+    org = db.get_or_404(Organization, org_id)
     opp_id = request.args.get('opp_id', type=int)
-    opp = Opportunity.query.get(opp_id) if opp_id else None
+    opp = db.session.get(Opportunity, opp_id) if opp_id else None
 
     profile_id = session.get('profile_id')
-    profile = SupportSeekerProfile.query.get(profile_id) if profile_id else None
+    profile = db.session.get(SupportSeekerProfile, profile_id) if profile_id else None
 
     if request.method == 'POST':
         consent = request.form.get('referral_consent')
@@ -32,7 +32,6 @@ def create_referral_request(org_id):
         phone = request.form.get('contact_phone', '').strip() or (profile.contact_phone if profile else None)
 
         if not profile:
-            # Create a lightweight profile if none exists in session
             profile = SupportSeekerProfile(
                 alias_name=alias_name,
                 contact_phone=phone,
@@ -69,7 +68,7 @@ def create_referral_request(org_id):
 def confirmation(referral_id):
     lang = session.get('lang', 'en')
     current_user = get_current_user()
-    referral = ReferralRequest.query.get_or_404(referral_id)
+    referral = db.get_or_404(ReferralRequest, referral_id)
     return render_template(
         'referral/confirmation.html',
         lang=lang,

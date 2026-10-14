@@ -1,12 +1,19 @@
 from functools import wraps
-from flask import session, redirect, url_for, flash, request, abort
+from flask import session, redirect, url_for, flash, request, g
+from app.extensions import db
 from app.models.user import User
 
 def get_current_user():
+    """Retrieves current user with per-request user_id caching to eliminate redundant SQL hits."""
     user_id = session.get('user_id')
-    if user_id:
-        return User.query.get(user_id)
-    return None
+    if not user_id:
+        return None
+    if getattr(g, '_cached_user_id', None) == user_id:
+        return g._cached_user
+    user = db.session.get(User, user_id)
+    g._cached_user = user
+    g._cached_user_id = user_id
+    return user
 
 def login_required(f):
     @wraps(f)

@@ -32,7 +32,6 @@ def test_matching_engine_skill_and_location(app, seeded_data):
 
 def test_pathway_generation_addresses_concrete_barriers(app, seeded_data):
     with app.app_context():
-        # Profile with shelter and documentation barriers
         profile = SupportSeekerProfile(
             alias_name="Kishore K.",
             city="Visakhapatnam",
@@ -48,19 +47,16 @@ def test_pathway_generation_addresses_concrete_barriers(app, seeded_data):
         assert pathway is not None
         assert len(pathway.steps) == 6
 
-        # Step 1 should address shelter
         step1 = pathway.steps[0]
         assert step1.step_order == 1
         assert "Shelter" in step1.purpose
         assert step1.resource_id == seeded_data['res_shelter_id']
 
-        # Step 2 should address documentation
         step2 = pathway.steps[1]
         assert step2.step_order == 2
         assert "Documentation" in step2.purpose
         assert step2.resource_id == seeded_data['res_doc_id']
 
-        # Step 4 should target the matched opportunity
         step4 = pathway.steps[3]
         assert step4.step_order == 4
         assert step4.opportunity_id == seeded_data['opp_clean_id']
@@ -73,12 +69,10 @@ def test_pathway_step_status_toggle(client, app, seeded_data):
         pathway = PathwayService.generate_pathway(profile)
         step_id = pathway.steps[0].id
 
-    # Toggle to completed
     res = client.post(f'/api/step/{step_id}/toggle', json={'status': 'completed'})
     assert res.status_code == 200
     assert res.json['status'] == 'completed'
 
-    # Verify in DB
     with app.app_context():
-        updated_step = PathwayStep.query.get(step_id)
+        updated_step = db.session.get(PathwayStep, step_id)
         assert updated_step.status == 'completed'

@@ -12,10 +12,9 @@ def view_pathway(pathway_id):
     lang = session.get('lang', 'en')
     current_user = get_current_user()
 
-    pathway = Pathway.query.get_or_404(pathway_id)
+    pathway = db.get_or_404(Pathway, pathway_id)
     profile = pathway.profile
 
-    # Calculate completion metrics
     total_steps = len(pathway.steps)
     completed_steps = sum(1 for s in pathway.steps if s.status == 'completed')
     progress_percentage = int((completed_steps / total_steps) * 100) if total_steps > 0 else 0
@@ -33,7 +32,7 @@ def view_pathway(pathway_id):
 
 @pathway_bp.route('/pathway/step/<int:step_id>/status', methods=['POST'])
 def update_step_status(step_id):
-    step = PathwayStep.query.get_or_404(step_id)
+    step = db.get_or_404(PathwayStep, step_id)
     new_status = request.form.get('status') or (request.json.get('status') if request.is_json else None)
 
     if new_status in ('pending', 'in_progress', 'completed', 'skipped'):
@@ -52,7 +51,7 @@ def update_step_status(step_id):
 
 @pathway_bp.route('/pathway/step/<int:step_id>/notes', methods=['POST'])
 def update_step_notes(step_id):
-    step = PathwayStep.query.get_or_404(step_id)
+    step = db.get_or_404(PathwayStep, step_id)
     notes = request.form.get('user_notes', '').strip()
     step.user_notes = notes
     db.session.commit()

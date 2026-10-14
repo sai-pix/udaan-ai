@@ -27,17 +27,16 @@ class ReferralService:
     def create_referral(cls, profile_id: int, organization_id: int, opportunity_id: int = None,
                         alias_name: str = None, phone: str = None,
                         custom_consented_fields: dict = None, ip_address: str = None) -> ReferralRequest:
-        profile = SupportSeekerProfile.query.get(profile_id)
+        profile = db.session.get(SupportSeekerProfile, profile_id)
         if not profile:
             raise ValueError(f"Profile {profile_id} not found.")
 
-        org = Organization.query.get(organization_id)
+        org = db.session.get(Organization, organization_id)
         if not org:
             raise ValueError(f"Organization {organization_id} not found.")
 
-        opp = Opportunity.query.get(opportunity_id) if opportunity_id else None
+        opp = db.session.get(Opportunity, opportunity_id) if opportunity_id else None
 
-        # Build privacy-safe consented snapshot
         snapshot = {
             'alias_name': alias_name or profile.alias_name or 'Community Member',
             'contact_phone': phone or profile.contact_phone,
@@ -54,9 +53,7 @@ class ReferralService:
         if custom_consented_fields:
             snapshot.update(custom_consented_fields)
 
-        # Generate unique referral code
         ref_number = ReferralRequest.generate_reference_number()
-        # Ensure uniqueness
         while ReferralRequest.query.filter_by(reference_number=ref_number).first():
             ref_number = ReferralRequest.generate_reference_number()
 
@@ -73,7 +70,6 @@ class ReferralService:
         db.session.add(referral)
         db.session.flush()
 
-        # Create initial follow-up record
         followup = FollowUpRecord(
             referral_id=referral.id,
             profile_id=profile.id,
@@ -83,7 +79,6 @@ class ReferralService:
         )
         db.session.add(followup)
 
-        # Audit log
         audit = AuditEvent(
             user_id=profile.user_id,
             action_type='REFERRAL_SUBMITTED',
@@ -101,14 +96,13 @@ class ReferralService:
     def update_status(cls, referral_id: int, new_status: str, current_user, 
                       staff_notes: str = None, appointment_date: datetime = None,
                       outcome_summary: str = None, ip_address: str = None) -> ReferralRequest:
-        referral = ReferralRequest.query.get(referral_id)
+        referral = db.session.get(ReferralRequest, referral_id)
         if not referral:
             raise ValueError(f"Referral {referral_id} not found.")
 
         if new_status not in cls.ALLOWED_STATUSES:
             raise ValueError(f"Invalid status: {new_status}")
 
-        # Strict Organization Isolation Check
         if current_user.role == 'ngo_staff':
             if referral.organization_id != current_user.organization_id:
                 raise PermissionError("Access Denied: You cannot manage referrals for other organizations.")
@@ -127,7 +121,6 @@ class ReferralService:
         if outcome_summary:
             referral.outcome_summary = outcome_summary
 
-        # Add milestone to FollowUpRecord
         milestone_map = {
             'accepted': 'appointment_confirmed',
             'contacted': 'organization_contacted',
@@ -147,7 +140,6 @@ class ReferralService:
         )
         db.session.add(followup)
 
-        # Audit log
         audit = AuditEvent(
             user_id=current_user.id,
             action_type='REFERRAL_STATUS_UPDATED',

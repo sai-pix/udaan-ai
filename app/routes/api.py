@@ -1,8 +1,8 @@
 import os
 from flask import Blueprint, jsonify, request
+from sqlalchemy import func
 from app.extensions import db
 from app.models.resource import Resource
-from app.models.opportunity import Opportunity
 from app.models.referral import ReferralRequest
 from app.models.seeker_profile import SupportSeekerProfile
 from app.models.pathway import PathwayStep
@@ -11,7 +11,6 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 @api_bp.route('/health')
 def health_check():
-    # Verify DB connectivity
     db_ok = True
     try:
         db.session.execute(db.text('SELECT 1'))
@@ -30,7 +29,7 @@ def health_check():
 
 @api_bp.route('/step/<int:step_id>/toggle', methods=['POST'])
 def toggle_step(step_id):
-    step = PathwayStep.query.get(step_id)
+    step = db.session.get(PathwayStep, step_id)
     if not step:
         return jsonify({'error': 'Step not found'}), 404
 
@@ -45,12 +44,14 @@ def toggle_step(step_id):
 
 @api_bp.route('/impact-stats')
 def impact_stats():
-    """Aggregated, non-PII impact statistics for public transparency."""
+    """Aggregated, non-PII impact statistics using fast SQL GROUP BY."""
     categories = ['shelter', 'food', 'training', 'employment', 'documentation', 'rehabilitation']
-    cat_distribution = {c: Resource.query.filter_by(category=c).count() for c in categories}
+    grouped_cats = dict(db.session.query(Resource.category, func.count(Resource.id)).group_by(Resource.category).all())
+    cat_distribution = {c: grouped_cats.get(c, 0) for c in categories}
     
     status_list = ['submitted', 'under_review', 'accepted', 'contacted', 'appointment_scheduled', 'completed', 'declined']
-    referral_distribution = {s: ReferralRequest.query.filter_by(status=s).count() for s in status_list}
+    grouped_statuses = dict(db.session.query(ReferralRequest.status, func.count(ReferralRequest.id)).group_by(ReferralRequest.status).all())
+    referral_distribution = {s: grouped_statuses.get(s, 0) for s in status_list}
 
     return jsonify({
         'total_profiles': SupportSeekerProfile.query.count(),

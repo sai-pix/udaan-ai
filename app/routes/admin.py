@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+from sqlalchemy import func
 from app.extensions import db
 from app.models.organization import Organization
 from app.models.resource import Resource
@@ -6,7 +7,6 @@ from app.models.opportunity import Opportunity
 from app.models.referral import ReferralRequest
 from app.models.seeker_profile import SupportSeekerProfile
 from app.models.audit import AuditEvent
-from app.models.followup import FollowUpRecord
 from app.services.verification_service import VerificationService
 from app.auth_helper import login_required, roles_required, get_current_user
 
@@ -19,7 +19,6 @@ def dashboard():
     lang = session.get('lang', 'en')
     current_user = get_current_user()
 
-    # Aggregate impact metrics (privacy-preserving, no individual PII)
     total_profiles = SupportSeekerProfile.query.count()
     total_referrals = ReferralRequest.query.count()
     completed_referrals = ReferralRequest.query.filter_by(status='completed').count()
@@ -32,17 +31,15 @@ def dashboard():
     total_resources = Resource.query.count()
     verified_resources = Resource.query.filter_by(verified=True).count()
 
-    # Category counts for Chart.js
+    # Fast SQL GROUP BY aggregation for categories (1 single query instead of N loop queries)
+    grouped_cats = dict(db.session.query(Resource.category, func.count(Resource.id)).group_by(Resource.category).all())
     categories = ['shelter', 'food', 'training', 'employment', 'documentation', 'rehabilitation']
-    cat_counts = {}
-    for c in categories:
-        cat_counts[c] = Resource.query.filter_by(category=c).count()
+    cat_counts = {c: grouped_cats.get(c, 0) for c in categories}
 
-    # Referral statuses for Chart.js
+    # Fast SQL GROUP BY aggregation for referral status
+    grouped_statuses = dict(db.session.query(ReferralRequest.status, func.count(ReferralRequest.id)).group_by(ReferralRequest.status).all())
     status_list = ['submitted', 'under_review', 'accepted', 'contacted', 'appointment_scheduled', 'completed', 'declined']
-    referral_status_counts = {}
-    for s in status_list:
-        referral_status_counts[s] = ReferralRequest.query.filter_by(status=s).count()
+    referral_status_counts = {s: grouped_statuses.get(s, 0) for s in status_list}
 
     recent_audits = AuditEvent.query.order_by(AuditEvent.timestamp.desc()).limit(15).all()
 
@@ -100,7 +97,7 @@ def resources():
 @roles_required('admin')
 def toggle_resource_verify(res_id):
     current_user = get_current_user()
-    res = Resource.query.get_or_404(res_id)
+    res = db.get_or_404(Resource, res_id)
     VerificationService.verify_resource(res_id, not res.verified, current_user)
     flash(f"Resource {res.name} verification status set to {not res.verified}.", "info")
     return redirect(url_for('admin.resources'))

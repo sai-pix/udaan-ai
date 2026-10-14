@@ -12,21 +12,26 @@ from app.auth_helper import get_current_user
 
 main_bp = Blueprint('main', __name__)
 
+@main_bp.after_app_request
+def add_cache_headers(response):
+    """Adds caching headers for static assets to improve client-side efficiency."""
+    if request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'public, max-age=31536000'
+    return response
+
 @main_bp.route('/')
 def index():
     lang = session.get('lang', 'en')
     current_user = get_current_user()
     
-    # Aggregated pilot statistics (clearly indicated as demo/pilot)
     total_resources = Resource.query.filter_by(verified=True).count()
     total_opps = Opportunity.query.filter_by(is_active=True).count()
     total_orgs = Organization.query.count()
     
-    # Check if current session has an active pathway
     session_profile_id = session.get('profile_id')
     recent_pathway = None
     if session_profile_id:
-        profile = SupportSeekerProfile.query.get(session_profile_id)
+        profile = db.session.get(SupportSeekerProfile, session_profile_id)
         if profile and profile.pathways:
             recent_pathway = profile.pathways[-1]
 
@@ -121,9 +126,8 @@ def privacy():
 def delete_my_data():
     session_profile_id = session.get('profile_id')
     if session_profile_id:
-        profile = SupportSeekerProfile.query.get(session_profile_id)
+        profile = db.session.get(SupportSeekerProfile, session_profile_id)
         if profile:
-            # Delete child pathways, steps, referrals
             db.session.delete(profile)
             db.session.commit()
         session.pop('profile_id', None)
@@ -134,7 +138,6 @@ def delete_my_data():
 
 @main_bp.route('/load-demo-scenario')
 def load_demo_scenario():
-    """Seeds or resets the demo data so judges can immediately explore the application."""
     from scripts.seed_demo import seed_database
     seed_database()
     flash("Demonstration scenario successfully reloaded with Andhra Pradesh pilot data!", "success")

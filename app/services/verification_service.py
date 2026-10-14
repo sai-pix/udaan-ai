@@ -8,7 +8,7 @@ from app.models.audit import AuditEvent
 class VerificationService:
     @classmethod
     def verify_organization(cls, org_id: int, status: str, source: str, admin_user, internal_notes: str = None):
-        org = Organization.query.get(org_id)
+        org = db.session.get(Organization, org_id)
         if not org:
             raise ValueError(f"Organization {org_id} not found.")
 
@@ -19,7 +19,6 @@ class VerificationService:
         if internal_notes:
             org.internal_notes = internal_notes
 
-        # Cascade status to child resources and opportunities if deactivated
         if status == 'deactivated':
             for r in org.resources:
                 r.verified = False
@@ -39,7 +38,7 @@ class VerificationService:
 
     @classmethod
     def verify_resource(cls, resource_id: int, is_verified: bool, admin_user):
-        resource = Resource.query.get(resource_id)
+        resource = db.session.get(Resource, resource_id)
         if not resource:
             raise ValueError(f"Resource {resource_id} not found.")
 
@@ -59,7 +58,7 @@ class VerificationService:
 
     @classmethod
     def verify_opportunity(cls, opportunity_id: int, status: str, admin_user):
-        opp = Opportunity.query.get(opportunity_id)
+        opp = db.session.get(Opportunity, opportunity_id)
         if not opp:
             raise ValueError(f"Opportunity {opportunity_id} not found.")
 
