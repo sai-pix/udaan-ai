@@ -11,7 +11,14 @@ class Config:
     if db_url and db_url.startswith('postgres://'):
         db_url = db_url.replace('postgres://', 'postgresql://', 1)
     
-    SQLALCHEMY_DATABASE_URI = db_url or f"sqlite:///{os.path.join(BASE_DIR, 'udaan.db')}"
+    if not db_url:
+        if os.environ.get('VERCEL'):
+            db_path = '/tmp/udaan.db'
+        else:
+            db_path = os.path.join(BASE_DIR, 'udaan.db')
+        db_url = f"sqlite:///{db_path}"
+
+    SQLALCHEMY_DATABASE_URI = db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Gemini AI configuration
